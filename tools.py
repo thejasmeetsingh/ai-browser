@@ -6,6 +6,9 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
 GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY")
 
+if not TAVILY_API_KEY or not GOOGLE_PSE_API_KEY or not GOOGLE_SEARCH_ENGINE_ID:
+    raise EnvironmentError("API credentails are not configured")
+
 
 async def extract_web_page_content(url: str) -> list:
     """
