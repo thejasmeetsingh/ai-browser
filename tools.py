@@ -2,9 +2,14 @@ import os
 from httpx import AsyncClient
 
 
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
+GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY")
+
+
 async def extract_web_page_content(url: str) -> list:
     headers = {
-        "Authorization": f"Bearer {os.getenv('TAVILY_API_KEY')}",
+        "Authorization": f"Bearer {TAVILY_API_KEY}",
         "Content-Type": "application/json"
     }
 
@@ -31,9 +36,9 @@ async def google_search(query: str, count: int = 10) -> list:
     while count > 0:
         num_results_this_page = min(count, 10)  # Google PSE max results per page is 10
         params = {
-            "cx": os.getenv("GOOGLE_SEARCH_ENGINE_ID"),
+            "cx": GOOGLE_SEARCH_ENGINE_ID,
             "q": query,
-            "key": os.getenv("GOOGLE_PSE_KEY"),
+            "key": GOOGLE_PSE_API_KEY,
             "num": num_results_this_page,
             "start": start_index,
         }
