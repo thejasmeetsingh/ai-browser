@@ -1,6 +1,7 @@
 import time
 import asyncio
 import traceback
+from pathlib import Path
 
 from dotenv import load_dotenv
 from rich.console import Console
@@ -14,7 +15,8 @@ from tools import google_search, extract_web_page_content
 
 
 # Initialize console with rich themes
-load_dotenv()
+BASE_PATH = Path(__file__).resolve().parent
+load_dotenv(BASE_PATH / ".env")
 console = Console()
 
 
