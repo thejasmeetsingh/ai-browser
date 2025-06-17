@@ -8,6 +8,10 @@ GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY")
 
 
 async def extract_web_page_content(url: str) -> list:
+    """
+    Extract web page content from URLs using Tavily Extract API.
+    """
+
     headers = {
         "Authorization": f"Bearer {TAVILY_API_KEY}",
         "Content-Type": "application/json"
@@ -28,6 +32,11 @@ async def extract_web_page_content(url: str) -> list:
 
 
 async def google_search(query: str, count: int = 10) -> list:
+    """
+    Search using Google's Programmable Search Engine API and return the results as a list objects.
+    Handles pagination for counts greater than 10.
+    """
+
     url = "https://www.googleapis.com/customsearch/v1"
     headers = {"Content-Type": "application/json"}
     all_results = []
