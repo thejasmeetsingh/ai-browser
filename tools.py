@@ -2,21 +2,18 @@ import os
 from httpx import AsyncClient
 
 
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
-GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY")
-
-if not TAVILY_API_KEY or not GOOGLE_PSE_API_KEY or not GOOGLE_SEARCH_ENGINE_ID:
-    raise EnvironmentError("API credentails are not configured")
-
-
 async def extract_web_page_content(url: str) -> list:
     """
     Extract web page content from URLs using Tavily Extract API.
     """
 
+    tavily_api_key = os.getenv("TAVILY_API_KEY")
+
+    if not tavily_api_key:
+        raise ValueError("TAVILY_API_KEY not configured in env")
+
     headers = {
-        "Authorization": f"Bearer {TAVILY_API_KEY}",
+        "Authorization": f"Bearer {tavily_api_key}",
         "Content-Type": "application/json"
     }
 
@@ -40,6 +37,12 @@ async def google_search(query: str, count: int = 10) -> list:
     Handles pagination for counts greater than 10.
     """
 
+    google_search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
+    google_pse_api_key = os.getenv("GOOGLE_PSE_API_KEY")
+
+    if not google_search_engine_id or not google_pse_api_key:
+        raise ValueError("Google PSE credentials are not configured in env")
+
     url = "https://www.googleapis.com/customsearch/v1"
     headers = {"Content-Type": "application/json"}
     all_results = []
@@ -48,9 +51,9 @@ async def google_search(query: str, count: int = 10) -> list:
     while count > 0:
         num_results_this_page = min(count, 10)  # Google PSE max results per page is 10
         params = {
-            "cx": GOOGLE_SEARCH_ENGINE_ID,
+            "cx": google_search_engine_id,
             "q": query,
-            "key": GOOGLE_PSE_API_KEY,
+            "key": google_pse_api_key,
             "num": num_results_this_page,
             "start": start_index,
         }

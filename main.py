@@ -15,8 +15,7 @@ from tools import google_search, extract_web_page_content
 
 
 # Initialize console with rich themes
-BASE_PATH = Path(__file__).resolve().parent
-load_dotenv(BASE_PATH / ".env")
+load_dotenv()
 console = Console()
 
 
