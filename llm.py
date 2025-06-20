@@ -34,8 +34,8 @@ class CustomOllama:
 
     @staticmethod
     def format_response(content: str) -> str:
-        return content.split("</think>")[-1].strip()
-    
+        return content.replace("<think>", "*").replace("</think>", "*")
+
     @staticmethod
     def get_sys_prompts() -> dict:
         return {
@@ -49,6 +49,10 @@ class CustomOllama:
     async def get_models(self) -> list:
         response = await self.client.list()
         return response.models
+    
+    async def chat(self, messages: list[dict]) -> str:
+        response = await self.client.chat(model=self.model, messages=messages)
+        return response.message.content
 
     async def generate(self, sys_prompt_type: str, user_prompt: str) -> str:
         sys_prompts = self.get_sys_prompts()
