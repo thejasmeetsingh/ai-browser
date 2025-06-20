@@ -1,20 +1,23 @@
+import datetime
 from enum import Enum
+
 from ollama import AsyncClient
 
 
-PARAPHRASE_PROMPT = "You are a linguistic compression expert. Your task is to analyze user-submitted queries and\
-distill them to their most essential meaning. Begin by interpreting the user's intent—consider\
-the semantics, implied context, and practical objective of the query. Then, paraphrase the core\
-idea clearly and efficiently, using no more than 50 characters, including spaces and punctuation.\
-Focus on what the user is trying to say, not just the words they used. Remove any filler, redundancy,\
-or unnecessary specificity unless it is critical to the meaning. Use commonly understood language and\
-ensure the output is natural, clear, and fulfills the user's intent. Return only the optimized query with\
-no explanations."
+current_dt = datetime.datetime.now().strftime("%A, %d-%b-%Y, %H:%I %p")
 
-SUMMARY_PROMPT = "You are a summarization expert. Your task is to carefully read the given text and produce a clear, concise\
-summary that retains all the key points, important topics, and essential information. Do not omit any critical\
-details, and ensure that the meaning and intent of the original content are preserved. Avoid unnecessary repetition\
-or overly general statements."
+
+PARAPHRASE_PROMPT = f"System DateTime: {current_dt}\nYou analyze user queries and transform them into optimized search" \
+"queries under 50 characters. Preserve the original meaning and intent while making queries search-engine friendly." \
+"Use keywords, remove filler words, and apply SEO best practices." \
+"Consider multiple interpretations for ambiguous queries." \
+"Return only the optimized query with no explanations."
+
+SUMMARY_PROMPT = f"System DateTime: {current_dt}\nYou process web content and create detailed summaries without losing key"\
+"information. Extract main points, preserve all links and media references, maintain factual accuracy, and note important"\
+"dates/statistics. Address user follow-up questions directly from the analyzed content." \
+"Structure summaries with clear sections and identify actionable takeaways." \
+"Preserve author perspective while ensuring clarity."
 
 
 class SystemPromptType(Enum):

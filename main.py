@@ -11,7 +11,7 @@ from rich.prompt import Prompt, IntPrompt
 from rich.text import Text
 
 from llm import CustomOllama, SystemPromptType
-from tools import google_search, extract_web_page_content
+from web import extract_web_page_content, google_search, brave_search
 
 
 # Initialize console with rich themes
@@ -88,6 +88,24 @@ def get_link_choices(web_search_results):
     return choices
 
 
+async def web_search(query: str, count: int = 10) -> list:
+    web_search_results = []
+
+    google_search_results = await google_search(query, count)
+    if isinstance(google_search_results, str):
+        console.log(google_search_results)
+    else:
+        web_search_results.extend(google_search_results)
+    
+    brave_search_results = await brave_search(query, count)
+    if isinstance(brave_search_results, str):
+        console.log(brave_search_results)
+    else:
+        web_search_results.extend(brave_search_results)
+
+    return web_search_results
+
+
 async def main():
     ollama = CustomOllama()
     models = await ollama.get_models()
@@ -95,7 +113,9 @@ async def main():
     # Display model selection with visual feedback
     selected_model = select_model(models)
     ollama.set_model(selected_model)
-    console.print(f"[bold green]✅ Selected model: {selected_model.split(':')[0].title()}[/bold green]")
+    model_name = selected_model.split(':')[0].title()
+
+    console.print(f"[bold green]✅ Selected model: {model_name}[/bold green]")
     
     while True:
         # Main query prompt with emoji and styling
@@ -113,11 +133,14 @@ async def main():
             start_time = time.perf_counter()
             
             # Generate improved query with rich styling
-            improved_query = await ollama.generate(sys_prompt_type=SystemPromptType.PARAPHRASE.value, user_prompt=prompt)
+            improved_query = await ollama.generate(
+                sys_prompt_type=SystemPromptType.PARAPHRASE.value,
+                user_prompt=prompt
+            )
             console.print(f"[magenta]🔄 Query: {improved_query}[/magenta]")
             
             # Perform web search with visual feedback
-            web_search_results = await google_search(query=improved_query)
+            web_search_results = await web_search(query=improved_query)
             
             # Display search results with rich formatting
             if not web_search_results:
@@ -125,7 +148,10 @@ async def main():
                 continue
             
             snippets = ".".join(result['snippet'] for result in web_search_results)
-            snippets_summary = await ollama.generate(sys_prompt_type=SystemPromptType.SUMMARY.value, user_prompt=snippets)
+            snippets_summary = await ollama.generate(
+                sys_prompt_type=SystemPromptType.SUMMARY.value,
+                user_prompt=snippets
+            )
             
             console.print(Panel(
                 Markdown(snippets_summary),
@@ -153,7 +179,14 @@ async def main():
                 # Extract and display content
                 start_time = time.perf_counter()
                 content = await extract_web_page_content(result["link"])
-                content_summary = await ollama.generate(sys_prompt_type=SystemPromptType.SUMMARY.value, user_prompt=content)
+
+                if not content:
+                    content_summary = f"No content found ⛓️‍💥. Please visit [{link_title}]({result['link']}) by yourself."
+                else:
+                    content_summary = await ollama.generate(
+                        sys_prompt_type=SystemPromptType.SUMMARY.value,
+                        user_prompt=content
+                    )
                 
                 console.print(Panel(
                     Markdown(content_summary),
@@ -161,12 +194,6 @@ async def main():
                     subtitle=f"[i][light purple]{round(time.perf_counter() - start_time) }s[/light purple][/i]",
                     subtitle_align="right"
                 ))
-                
-            # Add a brief pause between selections
-            await asyncio.sleep(0.5)
-        
-        # Add a brief pause between main queries
-        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
