@@ -19,8 +19,8 @@ SUMMARY_PROMPT = f"System DateTime: {current_dt}\nYou process web content and cr
 "Structure summaries with clear sections and identify actionable takeaways." \
 "Preserve author perspective while ensuring clarity."
 
-TOP_LINKS_PROMPT = "**User Query:** {}\n**Web Search Results:** {}\n\nBased on the above, return an array of strings" \
-"containing the **top links** (atmost 3 links) that are most relevant and likely to effectively address or answer " \
+TOP_LINKS_PROMPT = "**User Query:** {}\n**Web Search Results:** {}\n\nBased on the above, return a string" \
+"containing the **top link** that is the most relevant and likely to effectively address or answer " \
 "the user's query."
 
 

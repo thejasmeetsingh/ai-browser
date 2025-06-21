@@ -2,7 +2,7 @@ import os
 from httpx import AsyncClient
 
 
-async def extract_web_page_content(urls: list[str]) -> list:
+async def extract_web_page_content(url: str) -> str:
     """
     Extract web page content from URLs using Tavily Extract API.
     """
@@ -20,13 +20,14 @@ async def extract_web_page_content(urls: list[str]) -> list:
         response = await client.post(
             url="https://api.tavily.com/extract",
             headers=headers,
-            json={"urls": urls},
+            json={"urls": [url]},
             timeout=30,
         )
 
     response.raise_for_status()
     results = response.json().get("results", [])
-    return results
+
+    return results[0]["raw_content"] if results else ""
 
 
 async def google_search(query: str, count) -> list:

@@ -83,28 +83,27 @@ async def main():
         user_prompt = prompts.get(PromptType.TOP_LINKS.value).format(improved_query, web_search_results_md)
             
         with console.status("[yellow]Searching...[/yellow]", spinner="earth"):    
-            top_relevant_links_resp = await ollama.generate(
+            top_relevant_link_resp = await ollama.generate(
                 sys_prompt_type=PromptType.SUMMARY.value,
                 user_prompt=user_prompt,
                 format={
                     "type": "object",
                     "properties": {
-                        "links": {
-                            "type": "array"
+                        "link": {
+                            "type": "string"
                         }
                     },
-                    "required": ["links"]
+                    "required": ["link"]
                 }
             )
-            top_relevant_links = json.loads(top_relevant_links_resp)
+            top_relevant_link = json.loads(top_relevant_link_resp)
 
-            console.log(top_relevant_links)
-            content = ".".join(result['snippet'] for result in web_search_results)
+            content = web_search_results_md
 
-            if top_relevant_links:
-                extracted_content = await extract_web_page_content(top_relevant_links["links"])
+            if top_relevant_link:
+                extracted_content = await extract_web_page_content(top_relevant_link["link"])
                 if extracted_content:
-                    content = convert_dict_to_markdown({"search_results": extracted_content})
+                    content += f"\n### More Information From Source: {top_relevant_link['link']}\n\n{extracted_content}"
         
         messages.append({
             "role": "user",
