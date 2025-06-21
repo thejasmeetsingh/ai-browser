@@ -7,7 +7,7 @@ from ollama import AsyncClient
 current_dt = datetime.datetime.now().strftime("%A, %d-%b-%Y, %H:%I %p")
 
 
-PARAPHRASE_PROMPT = f"System DateTime: {current_dt}\nYou analyze user queries and transform them into optimized search" \
+PARAPHRASE_PROMPT = "*User Query: {}*\n\nAnalyze user queries and transform them into optimized search" \
 "queries under 50 characters. Preserve the original meaning and intent while making queries search-engine friendly." \
 "Use keywords, remove filler words, and apply SEO best practices." \
 "Consider multiple interpretations for ambiguous queries." \
@@ -19,10 +19,16 @@ SUMMARY_PROMPT = f"System DateTime: {current_dt}\nYou process web content and cr
 "Structure summaries with clear sections and identify actionable takeaways." \
 "Preserve author perspective while ensuring clarity."
 
+TOP_LINKS_PROMPT = "**User Query:** {}\n**Web Search Results:** {}\n\nBased on the above, return an array of strings" \
+"containing the **top links** (atmost 3 links) that are most relevant and likely to effectively address or answer " \
+"the user's query."
 
-class SystemPromptType(Enum):
+
+class PromptType(Enum):
     PARAPHRASE = "P"
     SUMMARY = "S"
+    NEW_SEARCH = "NS"
+    TOP_LINKS = "TL"
 
 
 class CustomOllama:
@@ -37,10 +43,11 @@ class CustomOllama:
         return content.replace("<think>", "*").replace("</think>", "*")
 
     @staticmethod
-    def get_sys_prompts() -> dict:
+    def get_prompts() -> dict[str, str]:
         return {
-            SystemPromptType.PARAPHRASE.value: PARAPHRASE_PROMPT,
-            SystemPromptType.SUMMARY.value: SUMMARY_PROMPT
+            PromptType.PARAPHRASE.value: PARAPHRASE_PROMPT,
+            PromptType.SUMMARY.value: SUMMARY_PROMPT,
+            PromptType.TOP_LINKS.value: TOP_LINKS_PROMPT
         }
 
     def set_model(self, model: str) -> None:
@@ -50,18 +57,19 @@ class CustomOllama:
         response = await self.client.list()
         return response.models
     
-    async def chat(self, messages: list[dict]) -> str:
-        response = await self.client.chat(model=self.model, messages=messages)
-        return response.message.content
+    async def chat(self, messages: list[dict], format: dict | None = None) -> str:
+        response = await self.client.chat(model=self.model, messages=messages, format=format)
+        return self.format_response(response.message.content)
 
-    async def generate(self, sys_prompt_type: str, user_prompt: str) -> str:
-        sys_prompts = self.get_sys_prompts()
+    async def generate(self, sys_prompt_type: str, user_prompt: str, format: dict | None = None) -> str:
+        sys_prompts = self.get_prompts()
 
         response = await self.client.generate(
             model=self.model,
             prompt=user_prompt,
             system=sys_prompts.get(sys_prompt_type, ""),
-            options=self.optons
+            options=self.optons,
+            format=format
         )
 
         return self.format_response(response.response)

@@ -1,14 +1,15 @@
+import os
 from httpx import AsyncClient
 
 
-def get_img_name(img_url: str) -> str:
-    return img_url.split("/")[-1].split(".")[0]
-
-
-async def extract_web_page_content(api_key: str, url: str) -> str | None:
+async def extract_web_page_content(urls: list[str]) -> list:
     """
     Extract web page content from URLs using Tavily Extract API.
     """
+
+    api_key = os.getenv("TAVILY_API_KEY")
+    if not api_key:
+        return []
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -19,31 +20,26 @@ async def extract_web_page_content(api_key: str, url: str) -> str | None:
         response = await client.post(
             url="https://api.tavily.com/extract",
             headers=headers,
-            json={"urls": [url], "include_images": True},
+            json={"urls": urls},
             timeout=30,
         )
 
     response.raise_for_status()
     results = response.json().get("results", [])
-    if not results:
-        return None
-
-    content = results[0]["raw_content"]
-    images = results[0]["images"]
-    if not images:
-        return content
-
-    images_list_md = "\n".join(f"- ![{get_img_name(image)}]({image})" for image in images)
-    content += f"\n\n### Images: {images_list_md}"
-
-    return content
+    return results
 
 
-async def google_search(api_key: str, search_engine_id: str, query: str, count) -> list | str:
+async def google_search(query: str, count) -> list:
     """
     Search using Google's Programmable Search Engine API and return the results as a list objects.
     Handles pagination for counts greater than 10.
     """
+
+    api_key = os.getenv("GOOGLE_API_KEY")
+    search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
+
+    if not api_key or not search_engine_id:
+        return []
 
     url = "https://www.googleapis.com/customsearch/v1"
     headers = {"Content-Type": "application/json"}
@@ -84,10 +80,14 @@ async def google_search(api_key: str, search_engine_id: str, query: str, count) 
     } for result in all_results]
 
 
-async def brave_search(api_key: str, query: str, count: int) -> list | str:
+async def brave_search(query: str, count: int) -> list:
     """
     Search using Brave's Search API and return the results as a list of objects.
     """
+
+    api_key = os.getenv("BRAVE_API_KEY")
+    if not api_key:
+        return []
 
     url = "https://api.search.brave.com/res/v1/web/search"
 
@@ -116,3 +116,17 @@ async def brave_search(api_key: str, query: str, count: int) -> list | str:
         "title": result["title"],
         "snippet": result["description"]
     } for result in results]
+
+
+async def web_search(query: str, count: int = 10) -> list:
+    web_search_results = []
+
+    # Google search
+    google_search_results = await google_search(query, count)
+    web_search_results.extend(google_search_results)
+    
+    # Brave Search
+    brave_search_results = await brave_search(query, count)
+    web_search_results.extend(brave_search_results)
+
+    return web_search_results
