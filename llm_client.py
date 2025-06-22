@@ -181,7 +181,7 @@ class OllamaClient:
         self, 
         messages: List[Dict[str, str]], 
         options: Optional[Dict[str, Any]] = None,
-        format_type: Optional[str] = None,
+        format: Optional[Dict[str, Any]] = None,
         stream: bool = False
     ) -> str:
         """
@@ -213,7 +213,7 @@ class OllamaClient:
                 model=self.model,
                 messages=messages,
                 options=final_options,
-                format=format_type,
+                format=format,
                 stream=stream
             )
             
@@ -303,26 +303,37 @@ class OllamaClient:
         except Exception as e:
             raise OllamaClientError(f"Unexpected error during generation: {e}")
 
-    async def quick_paraphrase(self, query: str) -> str:
+    async def quick_paraphrase(self, messages: List[Dict[str, str]], query: str) -> str:
         """
         Convenience method for quick query paraphrasing.
         
         Args:
+            messages: List of messages
             query: Query to paraphrase
             
         Returns:
             Paraphrased query
         """
 
-        return await self.generate(PromptType.PARAPHRASE.value, query, format={
-            "type": "object",
-            "properties": {
-                "improved_query": {
-                    "type": "string"
-                }
-            },
-            "required": ["improved_query"]
-        })
+        prompt_templates = self.get_prompt_templates()
+        prompt = prompt_templates.get(PromptType.PARAPHRASE.value, "")
+        prompt = prompt.format(query)
+
+        return await self.chat(
+            messages=messages + [{
+                "role": "user",
+                "content": prompt
+            }],
+            format={
+                "type": "object",
+                "properties": {
+                    "improved_query": {
+                        "type": "string"
+                    }
+                },
+                "required": ["improved_query"]
+            }
+        )
 
     async def health_check(self) -> bool:
         """

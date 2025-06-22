@@ -26,9 +26,9 @@ class Config:
     """Application configuration constants."""
     NUM_CTX = 50000
     DEFAULT_SEARCH_COUNT = 10
-    MAX_CONTENT_LENGTH = 50000
+    MAX_CONTENT_LENGTH = 100000
     MIN_QUERY_LENGTH = 2
-    MAX_QUERY_LENGTH = 50
+    MAX_QUERY_LENGTH = 500
     DEFAULT_MODEL_TIMEOUT = 60.0
     DEFAULT_SEARCH_TIMEOUT = 30.0
 
@@ -276,7 +276,10 @@ class ConversationManager:
     async def _optimize_query(self, query: str) -> str:
         """Optimize user query for better search results."""
         try:
-            optimized_resp = await self.app_state.ollama_client.quick_paraphrase(query)
+            optimized_resp = await self.app_state.ollama_client.quick_paraphrase(
+                messages=self.app_state.conversation_history,
+                query=query
+            )
             optimized = json.loads(optimized_resp)
 
             # Fallback to original if optimization fails
