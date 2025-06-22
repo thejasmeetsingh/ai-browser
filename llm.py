@@ -34,8 +34,6 @@ class PromptType(Enum):
 class CustomOllama:
     def __init__(self):
         self.client = AsyncClient()
-        self.optons = {"num_ctx": 17000}
-
         self.model = None
 
     @staticmethod
@@ -57,18 +55,27 @@ class CustomOllama:
         response = await self.client.list()
         return response.models
     
-    async def chat(self, messages: list[dict], format: dict | None = None) -> str:
-        response = await self.client.chat(model=self.model, messages=messages, format=format)
+    async def chat(self, messages: list[dict], optons: dict | None = None,
+                   format: dict | None = None) -> str:
+        response = await self.client.chat(
+            model=self.model,
+            messages=messages,
+            options=optons,
+            format=format
+        )
+
         return self.format_response(response.message.content)
 
-    async def generate(self, sys_prompt_type: str, user_prompt: str, format: dict | None = None) -> str:
+    async def generate(self, sys_prompt_type: str, user_prompt: str,
+                       optons: dict | None = None,
+                       format: dict | None = None) -> str:
         sys_prompts = self.get_prompts()
 
         response = await self.client.generate(
             model=self.model,
             prompt=user_prompt,
             system=sys_prompts.get(sys_prompt_type, ""),
-            options=self.optons,
+            options=optons,
             format=format
         )
 

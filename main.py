@@ -14,6 +14,8 @@ from custom_rich_mod import MarkdownTyper, CustomIntPrompt
 load_dotenv()
 console = Console()
 
+NUM_CTX = 50000
+
 
 def select_model(models):
     choices = [f"{idx}. {model['model'].split(':')[0].title()}" for idx, model in enumerate(models, start=1)]
@@ -98,12 +100,15 @@ async def main():
             )
             top_relevant_link = json.loads(top_relevant_link_resp)
 
-            content = web_search_results_md
+            content = "# Summary:\n" + ".".join(
+                web_search_result["snippet"]
+                for web_search_result in web_search_results
+            )
 
             if top_relevant_link:
                 extracted_content = await extract_web_page_content(top_relevant_link["link"])
                 if extracted_content:
-                    content += f"\n### More Information From Source: {top_relevant_link['link']}\n\n{extracted_content}"
+                    content += f"\n## More Information From Source: {top_relevant_link['link']}\n\n{extracted_content}"
         
         messages.append({
             "role": "user",
@@ -111,7 +116,7 @@ async def main():
         })
         
         with console.status("[bold green]Thinking...[/bold green]"):
-            response = await ollama.chat(messages=messages)
+            response = await ollama.chat(messages=messages, optons={"num_ctx": NUM_CTX})
 
         typer.type_with_cursor(f"🤖 {model_name} Response", response, delay=0.01)
 
