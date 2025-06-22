@@ -151,7 +151,8 @@ python main.py
 
 3. **Start browsing with your brain!** Ask anything and get intelligent responses
 
-### Example Neural Session
+### 🎥 Demo
+[![](https://github.com/user-attachments/assets/6a4e0bfb-da61-4f6b-b29d-7f453e9b94b3)](https://ja3-projects.s3.ap-south-1.amazonaws.com/neru-shell.mp4)
 
 
 ### Neural Commands
