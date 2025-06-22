@@ -407,7 +407,9 @@ class WebSearchClient:
         
         for result in results:
             url_hash = result.url_hash
-            if url_hash not in seen_hashes:
+            # Check if the URL is already see in dataset,
+            # Also remove result which a YouTube URL since we are focusing on text based content only.
+            if url_hash not in seen_hashes and "youtube" not in result.link.lower():
                 seen_hashes.add(url_hash)
                 unique_results.append(result)
         
