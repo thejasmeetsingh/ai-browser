@@ -1,6 +1,6 @@
 # 🧠 NeuroShell
 
-![Logo](https://github.com/user-attachments/assets/6a4e0bfb-da61-4f6b-b29d-7f453e9b94b3)
+![logo](https://github.com/user-attachments/assets/59a93f6a-0fcc-4f26-b4ed-dbbc3316ebd2)
 
 **The intelligent terminal-based browser that try to eliminates the need for conventional web browsing.**
 
