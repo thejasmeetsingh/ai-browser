@@ -1,7 +1,6 @@
 <div align="center">
-  <img width="40%" src="https://github.com/user-attachments/assets/3cb12204-6d94-4494-8542-6be2221a742a" alt="logo"/>
+  <h1>🧠 NeuroShell</h1>
 </div>
-
 
 **The intelligent terminal-based browser that try to eliminates the need for conventional web browsing.**
 
