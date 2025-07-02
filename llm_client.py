@@ -181,8 +181,7 @@ class OllamaClient:
         self, 
         messages: List[Dict[str, str]], 
         options: Optional[Dict[str, Any]] = None,
-        format: Optional[Dict[str, Any]] = None,
-        stream: bool = False
+        format: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Send a chat request to the model.
@@ -191,7 +190,6 @@ class OllamaClient:
             messages: List of message dictionaries with 'role' and 'content' keys
             options: Optional model options (overrides defaults)
             format_type: Optional response format ('json', etc.)
-            stream: Whether to stream the response
             
         Returns:
             Formatted response content
@@ -213,8 +211,7 @@ class OllamaClient:
                 model=self.model,
                 messages=messages,
                 options=final_options,
-                format=format,
-                stream=stream
+                format=format
             )
             
             content = response.message.content if hasattr(response, 'message') else str(response)

@@ -266,7 +266,7 @@ class ConversationManager:
             extracted_content = await self._extract_relevant_content(optimized_query, search_results)
             
             # Step 4: Generate AI response
-            return await self._generate_ai_response(user_query, optimized_query, search_results, extracted_content)
+            return await self._generate_ai_response(optimized_query, search_results, extracted_content)
             
         except Exception as e:
             console.log(f"[red]Error processing query: {e}[/red]")
@@ -331,7 +331,8 @@ class ConversationManager:
                                 }
                             },
                             "required": ["link"]
-                        }
+                        },
+                        options={"num_ctx": Config.NUM_CTX}
                     )
                     
                     try:
@@ -350,8 +351,7 @@ class ConversationManager:
             return None
     
     async def _generate_ai_response(
-        self, 
-        original_query: str, 
+        self,
         optimized_query: str, 
         search_results: List[SearchResult], 
         extracted_content: Optional[str]
@@ -364,7 +364,7 @@ class ConversationManager:
         # Add user message to conversation
         user_message = {
             "role": "user",
-            "content": f"**User Query:** {original_query}\n**Optimized Query:** {optimized_query}\n\n{content_summary}"
+            "content": f"**User Query:** {optimized_query}\n\n{content_summary}"
         }
         self.app_state.conversation_history.append(user_message)
         
@@ -569,7 +569,7 @@ async def main() -> None:
             conversation_manager = ConversationManager(app_state)
             
             # Main chat loop
-            console.print("\n[bold cyan]🎯 Ready to chat! Ask me anything.[/bold cyan]")
+            console.print("\n[bold cyan]🎯 Ready to chat![/bold cyan]")
             
             while True:
                 # Get user input
