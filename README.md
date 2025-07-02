@@ -1,5 +1,7 @@
 # 🧠 NeuroShell
 
+![Logo](https://github.com/user-attachments/assets/6a4e0bfb-da61-4f6b-b29d-7f453e9b94b3)
+
 **The intelligent terminal-based browser that try to eliminates the need for conventional web browsing.**
 
 NeuroShell is a command-line AI browser that combines local language models with real-time web search to deliver comprehensive, contextual answers directly in your terminal. Say goodbye to opening multiple browser tabs and hello to instant, intelligent responses.
@@ -131,7 +133,7 @@ TAVILY_API_KEY=your_tavily_api_key_here
 ### Step 4: Verify Neural Installation
 
 ```bash
-# Test neural engine connection
+# Test ollama connection
 curl http://localhost:11434/api/tags
 
 # Start NeuroShell
@@ -205,7 +207,7 @@ python main.py
 #### "No neural models available"
 ```bash
 # Install a neural model
-ollama pull llama2
+ollama pull gemma3
 
 # Verify neural installation
 ollama list
@@ -213,10 +215,10 @@ ollama list
 
 #### "Neural engine not responding"
 ```bash
-# Start neural engine
+# Start ollama server
 ollama serve
 
-# Check neural status
+# Check ollama status
 curl http://localhost:11434/api/tags
 ```
 
